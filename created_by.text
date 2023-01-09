@@ -1,0 +1,11 @@
+Developer: "Dwi Pasha"
+Apps: "Coffe Shop Apps"
+Framework: "Laravel 8"
+clone: {
+    "git clone https://github.com/DwiPashaDjango/coffe-shop-apps-laravel.git",
+    "npm install",
+    "npm run dev",
+    "cp .env.example .env",
+    "php artisan key:generate",
+    "php artisan migrate",
+}
