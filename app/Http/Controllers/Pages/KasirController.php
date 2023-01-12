@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Pages;
 
 use App\Http\Controllers\Controller;
+use App\Models\Barang;
 use App\Models\Kasir;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 
 class KasirController extends Controller
@@ -20,21 +22,18 @@ class KasirController extends Controller
      */
     public function index()
     {
+        $barang = Barang::all();
+        $hit = Kasir::all();
         if (request()->ajax()) {
             $data = Kasir::with('user', 'barang')->get();
             return DataTables::of($data)
             ->addColumn('qty', function($row) {
-                    if ($row->qty > 1) {
-                        return '<button class="btn btn-danger btn-sm kurang"><i class="fas fa-minus"></i></button>
-                                <input type="text" class="qty text-center" value="'.$row->qty.'" id="qty" readonly>
-                                <button class="btn btn-success btn-sm tambah"><i class="fas fa-plus"></i></button>';
-                    } else {
-                        return '<input type="text" class="qty text-center" value="'.$row->qty.'" id="qty" readonly>
-                                <button class="btn btn-success btn-sm tambah"><i class="fas fa-plus"></i></button>';
-                    }
+                return '<button class="btn btn-danger btn-sm kurang" data-id="'.$row->id.'"><i class="fas fa-minus"></i></button>
+                        <input type="text" class="qty text-center" value="'.$row->qty.'" id="qty" readonly>
+                        <button class="btn btn-success btn-sm tambah" data-id="'.$row->id.'"><i class="fas fa-plus"></i></button>';
             })
             ->addColumn('total', function($row) {
-                    return number_format($row->qty * $row->barang->harga);
+                    return number_format($row->total);
             })
             ->addColumn('action', function($row) {
                     return  '<a href="#" data-toggle="dropdown" class="btn btn-primary btn-sm dropdown-toggle">Pilih</a>
@@ -47,7 +46,7 @@ class KasirController extends Controller
             ->rawColumns(['qty', 'action', 'total'])
             ->make(true);
         }
-        return view('app.kasir');
+        return view('app.kasir', compact('barang', 'hit'));
     }
 
     /**
@@ -58,7 +57,30 @@ class KasirController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validate = Validator::make($request->all(), [
+            'nm_pembeli' => 'required',
+            'barang_id' => 'required',
+        ], [
+            'nm_pembeli.required' => 'Nama pembeli harus di isi',
+        ]);
+
+        if ($validate->fails()) {
+            return response()->json(['errors' => $validate->errors()]);
+        }
+
+        $data = Kasir::create([
+            'users_id' => auth()->user()->id,
+            'nm_pembeli' => $request->nm_pembeli,
+            'barang_id' => $request->barang_id,
+            'qty' => '1',
+        ]);
+        $data->total = $data->barang->harga * $data->qty;
+        $data->save();
+
+        return response()->json([
+            'success' => 200,
+            'data' => $data
+        ]);
     }
 
     /**
@@ -92,7 +114,17 @@ class KasirController extends Controller
      */
     public function tambah(Request $req, $id)
     {
-        //
+        $data = Kasir::find($id);
+        $tqty = $data->qty;
+        $data->update([
+            'qty' => $tqty + 1,
+        ]);
+        $data->total = $data->barang->harga * $data->qty;
+        $data->save();
+        return response()->json([
+            'success' => 200,
+            'data' => $data
+        ]);
     }
 
     /**
@@ -103,7 +135,21 @@ class KasirController extends Controller
      */
     public function kurang(Request $req, $id)
     {
-        //
+        $data = Kasir::find($id);
+        $tqty = $data->qty;
+        if ($tqty <= 1) {
+            return response()->json(['errors' => 'Qty tidak bisa di kurangi lagi !']);
+        } else {
+            $data->update([
+                'qty' => $tqty - 1,
+            ]);
+            $data->total = $data->barang->harga * $data->qty;
+            $data->save();
+        }
+        return response()->json([
+            'success' => 200,
+            'data' => $data
+        ]);
     }
 
     /**

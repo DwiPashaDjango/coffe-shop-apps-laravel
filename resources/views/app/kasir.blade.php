@@ -39,6 +39,7 @@
             <h3 class="page__heading">Kasir</h3>
         </div>
         <div class="section-body">
+            <div id="err"></div>
             <div class="card">
                 <div class="card-body">
                     <div class="row">
@@ -48,12 +49,15 @@
                         <div class="col-6">
                             <select class="form-control" id="barang_id">
                                 <option selected>-- Pilih --</option>
+                                @foreach ($barang as $br)
+                                    <option value="{{ $br->id }}">{{ $br->nm_barang }}</option>
+                                @endforeach
                             </select>
                         </div>
                     </div>
                     <div class="d-flex justify-content-end">
-                        <button class="btn btn-outline-secondary btn-md mt-3 batal mr-2">Batal</button>
-                        <button class="btn btn-outline-primary btn-md mt-3 bayar">Pesan</button>
+                        <button type="button" class="btn btn-outline-secondary btn-md mt-3 batal mr-2">Batal</button>
+                        <button type="button" class="btn btn-outline-primary btn-md mt-3 pesan">Pesan</button>
                     </div>
                 </div>
             </div>
@@ -76,19 +80,18 @@
                             </tbody>
                             <tfoot>
                                 <th colspan="5" class="text-right">Total Pembayaran : </th>
-                                <th colspan="1" class="text-center"></th>
+                                <th colspan="1" class="text-center" id="grand"></th>
                             </tfoot>
                         </table>
+                        <div class="d-flex justify-content-end mr-4">
+                            <span><input type="hidden" class="ml-3" readonly value="{{ $hit->sum('total') }}" id="hit"></span>
+                        </div>
                         <div class="d-flex justify-content-end mr-4 mt-3">
                             <p>Uang Pembayaran : </p>
-                            <span><input type="text" class="ml-3" id="total"></span>
+                            <span><input type="text" class="ml-3" id="uang"></span>
                         </div>
                         <div class="d-flex justify-content-end mr-4">
-                            <p>Total Kembalian : </p>
-                            <span><input type="text" readonly class="ml-3" id="kembalian"></span>
-                        </div>
-                        <div class="d-flex justify-content-end mr-4">
-                            <button class="btn btn-secondary btn-md my-2 mr-2">Batal</button>
+                            <button class="btn btn-secondary btn-md my-2 mr-2 res">Batal</button>
                             <button class="btn btn-primary btn-md my-2 bayar">Bayar</button>
                         </div>
                     </div>

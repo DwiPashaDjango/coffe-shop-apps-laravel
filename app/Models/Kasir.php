@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Alfa6661\AutoNumber\AutoNumberTrait;
 
 class Kasir extends Model
 {
-    use HasFactory;
+    use HasFactory, AutoNumberTrait;
     protected $table = 'kasirs';
     protected $guarded = [];
     protected $hidden = ['created_at', 'updated_at'];

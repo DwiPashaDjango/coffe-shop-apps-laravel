@@ -50,5 +50,8 @@ Route::put('/d/gaji/karyawan/{id}', [GajiController::class, 'update']);
 Route::delete('/d/gaji/karyawan/{id}', [GajiController::class, 'destroy']);
 
 Route::get('/d/transaksi', [KasirController::class, 'index']);
+Route::post('/d/transaksi', [KasirController::class, 'store']);
+Route::put('/d/transaksi/tambah/{id}', [KasirController::class, 'tambah']);
+Route::put('/d/transaksi/kurang/{id}', [KasirController::class, 'kurang']);
 
 Route::post('/d/kategori/json', [BarangController::class, 'kategoriJson']);
